@@ -59,12 +59,6 @@ static void captureImg(uint16_t ws,uint16_t hs,uint16_t wg,uint8_t hg){
 		}
 	}
 }
-static uint8_t RdSerial(void){
-	/* Wait for data to be received */
-	while ( !(UCSR0A & (1<<RXC0)) );
-	/* Get and return received data from buffer */
-	return UDR0;
-}
 static void sendRam(uint16_t w,uint16_t h){
 	spiCSt();
 	spiWrB(3);//sequental read mode
@@ -74,7 +68,7 @@ static void sendRam(uint16_t w,uint16_t h){
 	//_delay_ms(2000);
 	uint16_t wl,hl;
 	for (hl=0;hl<h;++hl){
-		StringPgm(PSTR("RDY"));
+		StringPgm((char *)PSTR("RDY"));
 		for (wl=0;wl<w;++wl){
 			while ( !( UCSR0A & (1<<UDRE0)) ) {} //wait for byte to transmit
 			SPDR=0;//send dummy value to get byte back
@@ -237,43 +231,35 @@ int main(void){
 		however it could mean that there could be slight differences between each frame capture
 		I think the improvment of resolution outweights the cons of the slight changes per frame if any
 		The image will take about 15 seconds to reach the computer per frame*/
-		//hueSatMatrix(0,y);
-		//_delay_ms(100);
 		#ifdef qqvga
-		captureImg(0,0,320,120);
-		sendRam(320,120);
+			captureImg(0,0,320,120);
+			sendRam(320,120);
 		#endif
 		#ifdef qvga
-		captureImg(0,0,640,120);
-		sendRam(640,120);
-		captureImg(640,120,640,120);
-		sendRam(640,120);
+			captureImg(0,0,640,120);
+			sendRam(640,120);
+			captureImg(640,120,640,120);
+			sendRam(640,120);
 		#else
-		#ifdef rawRGB
-		uint8_t z;
-		//for (z=0;z<64;z++)
-		//{
-		//wrReg(0x11,z);//using scaler for divider
-		//_delay_ms(1000);
-		captureImg(0,0,640,160);
-		sendRam(640,160);
-		captureImg(640,160,640,160);
-		sendRam(640,160);
-		captureImg(640,320,640,160);
-		sendRam(640,160);
-		//}
-		#else
-		captureImg(0,0,1280,96);//each pixel is 2 bytes so 1280 instead of 640 for width
-		sendRam(1280,96);
-		captureImg(1280,96,1280,96);
-		sendRam(1280,96);
-		captureImg(1280,192,1280,96);
-		sendRam(1280,96);
-		captureImg(1280,288,1280,96);
-		sendRam(1280,96);
-		captureImg(1280,384,1280,96);
-		sendRam(1280,96);
-		#endif
+			#ifdef rawRGB
+				captureImg(0,0,640,160);
+				sendRam(640,160);
+				captureImg(640,160,640,160);
+				sendRam(640,160);
+				captureImg(640,320,640,160);
+				sendRam(640,160);
+			#else
+				captureImg(0,0,1280,96);//each pixel is 2 bytes so 1280 instead of 640 for width
+				sendRam(1280,96);
+				captureImg(1280,96,1280,96);
+				sendRam(1280,96);
+				captureImg(1280,192,1280,96);
+				sendRam(1280,96);
+				captureImg(1280,288,1280,96);
+				sendRam(1280,96);
+				captureImg(1280,384,1280,96);
+				sendRam(1280,96);
+			#endif
 		#endif
 		
 	}
