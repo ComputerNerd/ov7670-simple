@@ -59,8 +59,7 @@ static void captureImg(uint16_t ws,uint16_t hs,uint16_t wg,uint8_t hg){
 		}
 	}
 }
-uint8_t RdSerial(void)
-{
+static uint8_t RdSerial(void){
 	/* Wait for data to be received */
 	while ( !(UCSR0A & (1<<RXC0)) );
 	/* Get and return received data from buffer */
@@ -115,91 +114,90 @@ int main(void){
 	//set up camera
 	wrReg(0x15,32);//pclk does not toggle on HBLANK COM10
 	//wrReg(0x11,32);//using scaler for divider
-	wrReg(REG_RGB444, 0x00);             // Disable RGB444
+	wrReg(REG_RGB444, 0x00);			 // Disable RGB444
 	//wrReg(REG_COM11,226);//enable night mode 1/8 frame rate COM11*/
 	wrReg(0x2E,63);
-	wrReg(REG_TSLB,0x04);                // 0D = UYVY  04 = YUYV     
- 	wrReg(REG_COM13,0x88);               // connect to REG_TSLB
-	//wrReg(REG_COM13,0x8);               // connect to REG_TSLB disable gamma
+	wrReg(REG_TSLB,0x04);				// 0D = UYVY  04 = YUYV	 
+ 	wrReg(REG_COM13,0x88);			   // connect to REG_TSLB
+	//wrReg(REG_COM13,0x8);			   // connect to REG_TSLB disable gamma
 	#ifdef rgb565
-	wrReg(REG_COM7, 0x04);           // RGB + color bar disable 
-        wrReg(REG_COM15, 0xD0);          // Set rgb565 with Full range    0xD0
+		wrReg(REG_COM7, 0x04);		   // RGB + color bar disable 
+		wrReg(REG_COM15, 0xD0);		  // Set rgb565 with Full range	0xD0
 	#elif defined rawRGB
-	wrReg(REG_COM7,1);//raw rgb bayer
-	wrReg(REG_COM15, 0xC0);          //Full range
+		wrReg(REG_COM7,1);//raw rgb bayer
+		wrReg(REG_COM15, 0xC0);		  //Full range
 	#else
-	wrReg(REG_COM7, 0x00);           // YUV
-        //wrReg(REG_COM17, 0x00);          // color bar disable
-	wrReg(REG_COM15, 0xC0);          //Full range
+		wrReg(REG_COM7, 0x00);		   // YUV
+		//wrReg(REG_COM17, 0x00);		  // color bar disable
+		wrReg(REG_COM15, 0xC0);		  //Full range
 	#endif
-        //wrReg(REG_COM3, 0x04);
+	//wrReg(REG_COM3, 0x04);
 	#if defined qqvga || defined qvga
-	wrReg(REG_COM3,4);    // REG_COM3 
+		wrReg(REG_COM3,4);	// REG_COM3 
 	#else
-	wrReg(REG_COM3,0);    // REG_COM3
+		wrReg(REG_COM3,0);	// REG_COM3
 	#endif
-        //wrReg(0x3e,0x00);        //  REG_COM14
-     //   wrReg(0x72,0x11);        //
-       // wrReg(0x73,0xf0);        //
-	//wrReg(REG_COM8,0x8F);        // AGC AWB AEC Unlimited step size
+	//wrReg(0x3e,0x00);		//  REG_COM14
+	//wrReg(0x72,0x11);		//
+	//wrReg(0x73,0xf0);		//
+	//wrReg(REG_COM8,0x8F);		// AGC AWB AEC Unlimited step size
 	wrReg(REG_COM8,0x88);//disable AGC disable AEC
-        wrReg(REG_COM1, 3);//manual exposure
-        wrReg(0x07, 0xFF);//manual exposure
-        wrReg(0x10, 0xFF);//manual exposure
+	wrReg(REG_COM1, 3);//manual exposure
+	wrReg(0x07, 0xFF);//manual exposure
+	wrReg(0x10, 0xFF);//manual exposure
 	#ifdef qqvga
-	wrReg(REG_COM14, 0x1a);          // divide by 4
-        wrReg(0x72, 0x22);               // downsample by 4
-        wrReg(0x73, 0xf2);               // divide by 4
-        wrReg(REG_HSTART,0x16);
-        wrReg(REG_HSTOP,0x04);
-        wrReg(REG_HREF,0xa4);           
-        wrReg(REG_VSTART,0x02);
-        wrReg(REG_VSTOP,0x7a);
-        wrReg(REG_VREF,0x0a);	
+		wrReg(REG_COM14, 0x1a);		  // divide by 4
+		wrReg(0x72, 0x22);			   // downsample by 4
+		wrReg(0x73, 0xf2);			   // divide by 4
+		wrReg(REG_HSTART,0x16);
+		wrReg(REG_HSTOP,0x04);
+		wrReg(REG_HREF,0xa4);		   
+		wrReg(REG_VSTART,0x02);
+		wrReg(REG_VSTOP,0x7a);
+		wrReg(REG_VREF,0x0a);	
 	#endif
 	#ifdef qvga
-	wrReg(REG_COM14, 0x19);         
-        wrReg(0x72, 0x11);	
-        wrReg(0x73, 0xf1);
-        wrReg(REG_HSTART,0x16);
-        wrReg(REG_HSTOP,0x04);
-        wrReg(REG_HREF,0x24);            
-        wrReg(REG_VSTART,0x02);
-        wrReg(REG_VSTOP,0x7a);
-        wrReg(REG_VREF,0x0a);
+	wrReg(REG_COM14, 0x19);		 
+		wrReg(0x72, 0x11);	
+		wrReg(0x73, 0xf1);
+		wrReg(REG_HSTART,0x16);
+		wrReg(REG_HSTOP,0x04);
+		wrReg(REG_HREF,0x24);			
+		wrReg(REG_VSTART,0x02);
+		wrReg(REG_VSTOP,0x7a);
+		wrReg(REG_VREF,0x0a);
 	#else
-        wrReg(0x32,0xF6);        // was B6  
-        wrReg(0x17,0x13);        // HSTART
-        wrReg(0x18,0x01);        // HSTOP
-        wrReg(0x19,0x02);        // VSTART
-        wrReg(0x1a,0x7a);        // VSTOP
-        //wrReg(0x03,0x0a);        // VREF
+		wrReg(0x32,0xF6);		// was B6  
+		wrReg(0x17,0x13);		// HSTART
+		wrReg(0x18,0x01);		// HSTOP
+		wrReg(0x19,0x02);		// VSTART
+		wrReg(0x1a,0x7a);		// VSTOP
+		//wrReg(0x03,0x0a);		// VREF
 	wrReg(REG_VREF,0xCA);//set 2 high GAIN MSB
 	#endif
-       // wrReg(0x70, 0x3a);       // Scaling Xsc
-        //wrReg(0x71, 0x35);       // Scaling Ysc
-        //wrReg(0xA2, 0x02);       // pixel clock delay
- 
-  // COLOR SETTING
+	//wrReg(0x70, 0x3a);	   // Scaling Xsc
+	//wrReg(0x71, 0x35);	   // Scaling Ysc
+	//wrReg(0xA2, 0x02);	   // pixel clock delay
+	//Color Settings
 	wrReg(0,0xFF);//set gain to maxium possile
-    //wrReg(0xAA,0x14);            // Average-based AEC algorithm
-    wrReg(REG_BRIGHT,0x00);      // 0x00(Brightness 0) - 0x18(Brightness +1) - 0x98(Brightness -1)
-    wrReg(REG_CONTRAS,0x40);     // 0x40(Contrast 0) - 0x50(Contrast +1) - 0x38(Contrast -1)
-    //wrReg(0xB1,0xB1);            // Automatic Black level Calibration
-    wrReg(0xb1,4);//really enable ABLC
-    wrReg(MTX1,0x80);        
-    wrReg(MTX2,0x80);      
-    wrReg(MTX3,0x00);        
-    wrReg(MTX4,0x22);        
-    wrReg(MTX5,0x5e);        
-    wrReg(MTX6,0x80);        
-    wrReg(MTXS,0x9e);        
-    wrReg(AWBC7,0x88);
-    wrReg(AWBC8,0x88);
-    wrReg(AWBC9,0x44);
-    wrReg(AWBC10,0x67);
-    wrReg(AWBC11,0x49);
-    wrReg(AWBC12,0x0e);
+	//wrReg(0xAA,0x14);			// Average-based AEC algorithm
+	wrReg(REG_BRIGHT,0x00);	  // 0x00(Brightness 0) - 0x18(Brightness +1) - 0x98(Brightness -1)
+	wrReg(REG_CONTRAS,0x40);	 // 0x40(Contrast 0) - 0x50(Contrast +1) - 0x38(Contrast -1)
+	//wrReg(0xB1,0xB1);			// Automatic Black level Calibration
+	wrReg(0xb1,4);//really enable ABLC
+	wrReg(MTX1,0x80);
+	wrReg(MTX2,0x80);
+	wrReg(MTX3,0x00);
+	wrReg(MTX4,0x22);
+	wrReg(MTX5,0x5e);
+	wrReg(MTX6,0x80);
+	wrReg(MTXS,0x9e);
+	wrReg(AWBC7,0x88);
+	wrReg(AWBC8,0x88);
+	wrReg(AWBC9,0x44);
+	wrReg(AWBC10,0x67);
+	wrReg(AWBC11,0x49);
+	wrReg(AWBC12,0x0e);
 	wrReg(REG_GFIX,0x00);
 	//wrReg(GGAIN,0);
 	wrReg(AWBCTR3,0x0a);
@@ -234,24 +232,7 @@ int main(void){
 	spiWrB(0);//24 bit address
 	spiWrB(0);
 	spiWrB(0);
-	/*uint32_t x;
-	uint8_t y=0;
-
-	for (x=0;x<122880;x++){
-		SPDR=y;
-		y++;
-		while(!(SPSR & (1<<SPIF))) {}
-	}*/
-	/*sendRam(1280,96);//send test frame first
-	sendRam(1280,96);
-	sendRam(1280,96);
-	sendRam(1280,96);
-	sendRam(1280,96);*/
-	//sei();//enable interupts
-	//UDR0=0;
-
-	while (1)
-	{
+	while (1){
 		/* Note: One frame is broken down into 5 smaller captures this allows for a whole frame to be captured at 640x480 which is nice
 		however it could mean that there could be slight differences between each frame capture
 		I think the improvment of resolution outweights the cons of the slight changes per frame if any
@@ -294,26 +275,6 @@ int main(void){
 		sendRam(1280,96);
 		#endif
 		#endif
-		//frameByLine();
-		/*doneImg=0;
-		wantFrame=1;
-		sei();//enable interupts
-		//_delay_ms(1000);
-		while (doneImg==0) {} //wait for image to complete
-		cli();//disable interupts
-		//_delay_ms(1000);
-		spiCSt();
-		spiWrB(3);//sequental read mode
-		spiWrB(0);//24 bit address
-		spiWrB(0);
-		spiWrB(0);
-		for (x=0;x<50688;x++)
-		{
-			SPDR=0;//send dummy value to get byte back
-			while(!(SPSR & (1<<SPIF))) {}
-			UDR0=SPDR;
-			while ( !( UCSR0A & (1<<UDRE0)) ) {} //wait for byte to transmit
-		}*/
 		
 	}
 	
