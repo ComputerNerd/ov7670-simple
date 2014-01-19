@@ -109,8 +109,8 @@ int main(void){
 	wrReg(0x15,32);//pclk does not toggle on HBLANK COM10
 	//wrReg(0x11,32);//using scaler for divider
 	wrReg(REG_RGB444, 0x00);			 // Disable RGB444
-	//wrReg(REG_COM11,226);//enable night mode 1/8 frame rate COM11*/
-	wrReg(0x2E,63);
+	wrReg(REG_COM11,226);//enable night mode 1/8 frame rate COM11*/
+	//wrReg(0x2E,63);//Longer delay
 	wrReg(REG_TSLB,0x04);				// 0D = UYVY  04 = YUYV	 
  	wrReg(REG_COM13,0x88);			   // connect to REG_TSLB
 	//wrReg(REG_COM13,0x8);			   // connect to REG_TSLB disable gamma
