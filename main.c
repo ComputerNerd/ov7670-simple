@@ -135,10 +135,10 @@ int main(void){
 	//wrReg(0x72,0x11);		//
 	//wrReg(0x73,0xf0);		//
 	//wrReg(REG_COM8,0x8F);		// AGC AWB AEC Unlimited step size
-	wrReg(REG_COM8,0x88);//disable AGC disable AEC
+	/*wrReg(REG_COM8,0x88);//disable AGC disable AEC
 	wrReg(REG_COM1, 3);//manual exposure
 	wrReg(0x07, 0xFF);//manual exposure
-	wrReg(0x10, 0xFF);//manual exposure
+	wrReg(0x10, 0xFF);//manual exposure*/
 	#ifdef qqvga
 		wrReg(REG_COM14, 0x1a);		  // divide by 4
 		wrReg(0x72, 0x22);			   // downsample by 4
@@ -173,7 +173,7 @@ int main(void){
 	//wrReg(0x71, 0x35);	   // Scaling Ysc
 	//wrReg(0xA2, 0x02);	   // pixel clock delay
 	//Color Settings
-	wrReg(0,0xFF);//set gain to maxium possile
+	//wrReg(0,0xFF);//set gain to maxium possile
 	//wrReg(0xAA,0x14);			// Average-based AEC algorithm
 	wrReg(REG_BRIGHT,0x00);	  // 0x00(Brightness 0) - 0x18(Brightness +1) - 0x98(Brightness -1)
 	wrReg(REG_CONTRAS,0x40);	 // 0x40(Contrast 0) - 0x50(Contrast +1) - 0x38(Contrast -1)
