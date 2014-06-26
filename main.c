@@ -17,12 +17,12 @@ static inline void spiCSt(void){//selects the RAM chip and resets it
 }
 static inline void spiWrB(uint8_t dat){
 	SPDR = dat;
-	while(!(SPSR & (1<<SPIF))) {}// Wait for transmission complete
+	while(!(SPSR & (1<<SPIF)));// Wait for transmission complete
 }
 static inline void serialWrB(uint8_t dat){
-	while ( !( UCSR0A & (1<<UDRE0)) ) {} //wait for byte to transmit
+	while (!( UCSR0A & (1<<UDRE0)));//wait for byte to transmit
 	UDR0=dat;
-	while ( !( UCSR0A & (1<<UDRE0)) ) {} //wait for byte to transmit
+	while (!( UCSR0A & (1<<UDRE0)));//wait for byte to transmit
 }
 static void StringPgm(char * str){
 	do {
@@ -30,15 +30,15 @@ static void StringPgm(char * str){
 	} while(pgm_read_byte_near(++str));
 }
 static void captureImg(uint16_t ws,uint16_t hs,uint16_t wg,uint8_t hg){
-	//skip 1 multiplies skip 2 same with get1 and get2
 	//first wait for vsync it is on pin 3 (counting from 0) portD
-	//start spi ram
 	uint16_t ls2,lg2;
 	spiCSt();
-	spiWrB(2);//sequental write mode
-	spiWrB(0);//24 bit address
+	spiWrB(2);/* Configure the spi ram to use sequental write mode */
+	spiWrB(0);/* Becasue there is 128kb of ram the chip uses a 24 bit address  so that is why there are three byte writes */
 	spiWrB(0);
 	spiWrB(0);
+
+	/* Skip pixels */
 	while (!(PIND&8)){}//wait for high
 	while ((PIND&8)){}//wait for low
 	if (hs != 0){
@@ -50,6 +50,8 @@ static void captureImg(uint16_t ws,uint16_t hs,uint16_t wg,uint8_t hg){
 			}
 		}
 	}
+	
+	/* Read pixels to SPI ram */
 	while (hg--){
 		lg2=wg;
 		while (lg2--){
@@ -70,9 +72,9 @@ static void sendRam(uint16_t w,uint16_t h){
 	for (hl=0;hl<h;++hl){
 		StringPgm((char *)PSTR("RDY"));
 		for (wl=0;wl<w;++wl){
-			while ( !( UCSR0A & (1<<UDRE0)) ) {} //wait for byte to transmit
+			while (!(UCSR0A & (1<<UDRE0)));//wait for byte to transmit
 			SPDR=0;//send dummy value to get byte back
-			while(!(SPSR & (1<<SPIF))) {}
+			while(!(SPSR & (1<<SPIF)));
 			UDR0=SPDR;
 		}
 	}
@@ -107,8 +109,8 @@ int main(void){
 	SPSR=1;//double speed
 	//set up camera
 	wrReg(0x15,32);//pclk does not toggle on HBLANK COM10
-	//wrReg(0x11,32);//using scaler for divider
-	wrReg(REG_RGB444, 0x00);			 // Disable RGB444
+	//wrReg(0x11,32);//Register 0x11 is for pixel clock divider
+	wrReg(REG_RGB444, 0x00);// Disable RGB444
 	wrReg(REG_COM11,226);//enable night mode 1/8 frame rate COM11*/
 	//wrReg(0x2E,63);//Longer delay
 	wrReg(REG_TSLB,0x04);				// 0D = UYVY  04 = YUYV	 
@@ -227,10 +229,13 @@ int main(void){
 	spiWrB(0);
 	spiWrB(0);
 	while (1){
-		/* Note: One frame is broken down into 5 smaller captures this allows for a whole frame to be captured at 640x480 which is nice
-		however it could mean that there could be slight differences between each frame capture
-		I think the improvment of resolution outweights the cons of the slight changes per frame if any
-		The image will take about 15 seconds to reach the computer per frame*/
+		/* In this example we only have 128kb of ram not enough to hold one image unless you want qqvga
+		 * This is very low resolution most people will want a higher resoultion
+		 * To achive this we need to divide the image up into mutliple parts
+		 * A good way to get a 640x480 image without diving the image up into too many parts is to use raw bayer data
+		 * This means we only need to send three parts instea of five.
+		 * Also there are theoritcal quality advantages.
+		 * A good demosaicing algorithm may outperform the bultin demosaicing that the ov7670 does */
 		#ifdef qqvga
 			captureImg(0,0,320,120);
 			sendRam(320,120);
@@ -249,7 +254,9 @@ int main(void){
 				captureImg(640,320,640,160);
 				sendRam(640,160);
 			#else
-				captureImg(0,0,1280,96);//each pixel is 2 bytes so 1280 instead of 640 for width
+				/* This function operates in bytes not pixels in this case pixels are two bytes per pixel
+				 * so that is why you see 1280 used instead of 640 */ 
+				captureImg(0,0,1280,96);
 				sendRam(1280,96);
 				captureImg(1280,96,1280,96);
 				sendRam(1280,96);

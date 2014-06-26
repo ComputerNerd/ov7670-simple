@@ -95,7 +95,7 @@ LIBS=
 
 # Optimization level, 
 # use s (size opt), 1, 2, 3 or 0 (off)
-OPTLEVEL=s
+OPTLEVEL=2
 
 
 #####      AVR Dude 'writeflash' options       #####
@@ -137,7 +137,7 @@ AVRDUDE_PORT=/dev/ttyACM0
 HEXFORMAT=ihex
 
 # compiler
-CFLAGS=-L/usr/lib64/binutils/avr/2.23.1/ldscripts/ -I. $(INC) -g -mmcu=$(MCU) -O$(OPTLEVEL) \
+CFLAGS=-L/usr/lib64/binutils/avr/2.23.1/ldscripts/ -I. $(INC) -g -mmcu=$(MCU) -O$(OPTLEVEL) -flto \
 	-fpack-struct -fshort-enums             \
 	-funsigned-bitfields -funsigned-char    \
 	-Wall -Wstrict-prototypes               \
@@ -145,7 +145,7 @@ CFLAGS=-L/usr/lib64/binutils/avr/2.23.1/ldscripts/ -I. $(INC) -g -mmcu=$(MCU) -O
 	$(filter %.lst, $(<:.c=.lst)))
 
 # c++ specific flags
-CPPFLAGS=-fno-exceptions               \
+CPPFLAGS=-fno-exceptions -flto\
 	-Wa,-ahlms=$(firstword         \
 	$(filter %.lst, $(<:.cpp=.lst))\
 	$(filter %.lst, $(<:.cc=.lst)) \
@@ -159,8 +159,7 @@ ASMFLAGS =-I. $(INC) -mmcu=$(MCU)        \
 
 
 # linker
-LDFLAGS=-L/usr/lib64/binutils/avr/2.23.1/ldscripts/ -Wl,-gc-sections,-Map,$(TRG).map -mmcu=$(MCU) \
-	-lm $(LIBS)
+LDFLAGS=-L/usr/lib64/binutils/avr/2.23.1/ldscripts/ -Wl,-gc-sections,-Map,$(TRG).map -mmcu=$(MCU) -flto -O$(OPTLEVEL) $(LIBS)
 
 ##### executables ####
 CC=avr-gcc
