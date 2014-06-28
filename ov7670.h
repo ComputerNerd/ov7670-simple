@@ -1,11 +1,6 @@
 #include <stdint.h>
-void error_led(void);
-void twiStart(void);
-void twiWriteByte(uint8_t DATA);
 void wrReg(uint8_t reg,uint8_t dat);
 uint8_t rdReg(uint8_t reg);
-void ov7670_store_cmatrix(void);
-void hueSatMatrix(int hue,int sat);
 #define camAddr_WR 0x42
 #define camAddr_RD 0x43
 /* Registers */
