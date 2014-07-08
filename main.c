@@ -16,18 +16,18 @@ static inline void spiCSt(void){//selects the RAM chip and resets it
 	PORTB&=~4;//cs low
 }
 static inline void spiWrB(uint8_t dat){
-	SPDR = dat;
+	SPDR=dat;
 	while(!(SPSR & (1<<SPIF)));// Wait for transmission complete
 }
 static inline void serialWrB(uint8_t dat){
-	while (!( UCSR0A & (1<<UDRE0)));//wait for byte to transmit
+	while(!( UCSR0A & (1<<UDRE0)));//wait for byte to transmit
 	UDR0=dat;
-	while (!( UCSR0A & (1<<UDRE0)));//wait for byte to transmit
+	while(!( UCSR0A & (1<<UDRE0)));//wait for byte to transmit
 }
 static void StringPgm(char * str){
-	do {
+	do{
 		serialWrB(pgm_read_byte_near(str));
-	} while(pgm_read_byte_near(++str));
+	}while(pgm_read_byte_near(++str));
 }
 static void captureImg(uint16_t ws,uint16_t hs,uint16_t wg,uint8_t hg){
 	//first wait for vsync it is on pin 3 (counting from 0) portD
@@ -39,25 +39,25 @@ static void captureImg(uint16_t ws,uint16_t hs,uint16_t wg,uint8_t hg){
 	spiWrB(0);
 
 	/* Skip pixels */
-	while (!(PIND&8)){}//wait for high
-	while ((PIND&8)){}//wait for low
-	if (hs != 0){
-		while (hs--){
+	while(!(PIND&8));//wait for high
+	while((PIND&8));//wait for low
+	if(hs){
+		while(hs--){
 			ls2=ws;
-			while (ls2--){
-				while ((PIND&4)) {}//wait for low
-				while (!(PIND&4)) {}//wait for high
+			while(ls2--){
+				while((PIND&4));//wait for low
+				while(!(PIND&4));//wait for high
 			}
 		}
 	}
 	
 	/* Read pixels to SPI ram */
-	while (hg--){
+	while(hg--){
 		lg2=wg;
-		while (lg2--){
-			while ((PIND&4)) {}//wait for low
+		while(lg2--){
+			while((PIND&4));//wait for low
 			SPDR=(PINC&15)|(PIND&240);
-			while (!(PIND&4)) {}//wait for high
+			while(!(PIND&4));//wait for high
 		}
 	}
 }
@@ -78,7 +78,7 @@ static void sendRam(uint16_t w,uint16_t h){
 			UDR0=SPDR;
 		}
 	}
-	while ( !( UCSR0A & (1<<UDRE0)) ) {} //wait for byte to transmit
+	while(!(UCSR0A&(1<<UDRE0))); //wait for byte to transmit
 }
 int main(void){
 	
