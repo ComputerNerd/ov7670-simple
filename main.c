@@ -33,8 +33,8 @@ static void captureImg(uint16_t ws,uint16_t hs,uint16_t wg,uint8_t hg){
 	//first wait for vsync it is on pin 3 (counting from 0) portD
 	uint16_t ls2,lg2;
 	spiCSt();
-	spiWrB(2);/* Configure the spi ram to use sequental write mode */
-	spiWrB(0);/* Becasue there is 128kb of ram the chip uses a 24 bit address  so that is why there are three byte writes */
+	spiWrB(2);/* Configure the spi ram to use sequential write mode */
+	spiWrB(0);/* Because there is 128kb of ram the chip uses a 24 bit address  so that is why there are three byte writes */
 	spiWrB(0);
 	spiWrB(0);
 
@@ -63,7 +63,7 @@ static void captureImg(uint16_t ws,uint16_t hs,uint16_t wg,uint8_t hg){
 }
 static void sendRam(uint16_t w,uint16_t h){
 	spiCSt();
-	spiWrB(3);//sequental read mode
+	spiWrB(3);//sequential read mode
 	spiWrB(0);//24 bit address
 	spiWrB(0);
 	spiWrB(0);
@@ -82,17 +82,11 @@ static void sendRam(uint16_t w,uint16_t h){
 }
 int main(void){
 	
-	cli();//disable interupts
+	cli();//disable interrupts
 	DDRB|=47;//clock as output and SPI pins as output except MISO
 	PORTB|=6;//set both CS pins to high
 	DDRC&=~15;//low d0-d3 camera
-	DDRD&=~252;//d7-d4 and interupt pins
-	//DDRB&=~2;//href as input
-	//EICRA=11;//int0 rising int1 falling
-	//EIMSK=2;//disable int0 and enable int1
-	//disable pin change interupt
-	//PCICR=0;
-	//PCMSK0=2;
+	DDRD&=~252;//d7-d4 and interrupt pins
 	//set up twi for 100khz
 	TWSR&=~3;//disable prescaler for TWI
 	TWBR=72;//set to 100khz
@@ -175,7 +169,7 @@ int main(void){
 	//wrReg(0x71, 0x35);	   // Scaling Ysc
 	//wrReg(0xA2, 0x02);	   // pixel clock delay
 	//Color Settings
-	//wrReg(0,0xFF);//set gain to maxium possile
+	//wrReg(0,0xFF);//set gain to maximum possible
 	//wrReg(0xAA,0x14);			// Average-based AEC algorithm
 	wrReg(REG_BRIGHT,0x00);	  // 0x00(Brightness 0) - 0x18(Brightness +1) - 0x98(Brightness -1)
 	wrReg(REG_CONTRAS,0x40);	 // 0x40(Contrast 0) - 0x50(Contrast +1) - 0x38(Contrast -1)
@@ -201,17 +195,17 @@ int main(void){
 	wrReg(AWBCTR1,0x11);
 	wrReg(AWBCTR0,0x9f);
 	//wrReg(0xb0,0x84);//not sure what this does
-	wrReg(REG_COM16,COM16_AWBGAIN);//disable auto denoise and edge enhancment
+	wrReg(REG_COM16,COM16_AWBGAIN);//disable auto denoise and edge enhancement
 	//wrReg(REG_COM16,0);
 	wrReg(0x4C,0);//disable denoise
 	wrReg(0x76,0);//disable denoise
 	wrReg(0x77,0);//disable denoise
 	wrReg(0x7B,4);//brighten up shadows a bit end point 4
 	wrReg(0x7C,8);//brighten up shadows a bit end point 8
-	//wrReg(0x88,238);//darken highligts end point 176
+	//wrReg(0x88,238);//darken highlights end point 176
 	//wrReg(0x89,211);//try to get more highlight detail
 	//wrReg(0x7A,60);//slope
-	//wrReg(0x26,0xB4);//lower maxium stable operating range for AEC
+	//wrReg(0x26,0xB4);//lower maximum stable operating range for AEC
 	//hueSatMatrix(0,100);
 	//ov7670_store_cmatrix();
 	//wrReg(0x20,12);//set ADC range to 1.5x
@@ -222,20 +216,20 @@ int main(void){
 	//wrReg(0x2a,5);//href delay
 	spiCSt();
 	spiWrB(1);
-	spiWrB(64);//sequental mode
+	spiWrB(64);//sequential mode
 	spiCSt();
-	spiWrB(2);//sequental write mode
+	spiWrB(2);//sequential write mode
 	spiWrB(0);//24 bit address
 	spiWrB(0);
 	spiWrB(0);
 	while (1){
 		/* In this example we only have 128kb of ram not enough to hold one image unless you want qqvga
-		 * This is very low resolution most people will want a higher resoultion
-		 * To achive this we need to divide the image up into mutliple parts
+		 * This is very low resolution most people will want a higher resolution
+		 * To achieve this we need to divide the image up into multiple parts
 		 * A good way to get a 640x480 image without diving the image up into too many parts is to use raw bayer data
-		 * This means we only need to send three parts instea of five.
-		 * Also there are theoritcal quality advantages.
-		 * A good demosaicing algorithm may outperform the bultin demosaicing that the ov7670 does */
+		 * This means we only need to send three parts instead of five.
+		 * Also there are theoretical quality advantages.
+		 * A good demosaicing algorithm may outperform the built-in demosaicing that the ov7670 does */
 		#ifdef qqvga
 			captureImg(0,0,320,120);
 			sendRam(320,120);
