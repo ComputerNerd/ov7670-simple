@@ -91,8 +91,6 @@ int main(void){
 	TWSR&=~3;//disable prescaler for TWI
 	TWBR=72;//set to 100khz
 	//enable serial
-	//UBRR0H = (unsigned char)(MYUBRR>>8);
-	//UBRR0L = (unsigned char)MYUBRR&255;
 	UBRR0H=0;
 	UBRR0L=3;//3 = 0.5M 2M baud rate = 0 7 = 250k 207 is 9600 baud rate
 	UCSR0A|=2;//double speed aysnc
